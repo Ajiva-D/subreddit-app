@@ -4,16 +4,13 @@
       <h3>Subreddit</h3>
     </header>
     <div class="input-con">
-      <input type="text" name="new-category" placeholder="Add new Category" v-model="inputValue">
-      <button @click="saveCategory">Add</button>
+      <input type="text" name="new-category" placeholder="Search Category" v-model="inputValue">
+     
+      <button @click="saveCategory" >Add</button>
     </div>
-
+ <p ref="errormessage">this category doesn't exist...</p>
     <div class="cover">
       <subreddits v-for="(category,index) in categories" :key="index" :category="category"></subreddits>
-      <!-- <subreddits category="space"></subreddits>
-        <subreddits category="sports"></subreddits>
-        <subreddits category="art"></subreddits>
-      <subreddits category="movies"></subreddits>-->
     </div>
   </div>
 </template>
@@ -25,16 +22,26 @@ export default {
   name: "App",
   data() {
     return {
-      categories: ["food", "space", "sports", "art", "movies"],
-      inputValue: ""
+      categories: [],
+      inputValue: "",
+      
     };
   },
   methods: {
     saveCategory() {
-      this.categories.push(this.inputValue);
-      // this.categories.sort();
-      this.inputValue = "";
-    }
+         this.$refs.errormessage.style.display = "block";
+         this.$http.get('https://www.reddit.com/r/' + this.inputValue + '/top.json?limit=5')
+            .then((response)=> {
+             
+                if(response.ok === true){
+                     this.$refs.errormessage.style.display = "none";
+                     this.categories.push(this.inputValue);
+                     console.log(this.inputValue);
+                      this.inputValue = "";
+                }
+            });
+    },
+ 
   },
   components: {
     subreddits
@@ -43,13 +50,13 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Courgette');
 body {
   font-family: arial;
   color: #666666;
   background: #f4f4f4;
   margin: 0;
   padding: 0;
-  /* display: flex; */
   overflow-x: hidden;
 }
 ::-webkit-scrollbar {
@@ -96,5 +103,12 @@ button {
   border: none;
   color: white;
   outline: none;
+}
+p{
+  color:red;
+  text-align:center;
+  display:none;
+  font-family: 'Courgette', cursive;
+  font-size:18px;
 }
 </style>
